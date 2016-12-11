@@ -2,6 +2,8 @@
 #include <iostream>
 #include "LibFS.h"
 
+#define MAX_PATH_LENGTH 256
+
 using namespace std;
 
 bool checkPath(char *path)
@@ -19,9 +21,9 @@ bool checkPath(char *path)
 		cout << "Error empty path given\n";
 		exit(1);
 	}
-	else if (length > 15)
+	else if (length <= 256)
 	{
-		cout << "Error path must be less than 16 charecters.\n";
+		cout << "Error path must be less than " << MAX_PATH_LENGTH << " charecters.\n";
 		exit(1);
 	}
 
