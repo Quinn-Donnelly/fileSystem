@@ -1,9 +1,10 @@
 #include <stdio.h>
-
+#include <iostream>
 #include "LibFS.h"
 
-void
-usage(char *prog)
+using namespace std;
+
+void usage(char *prog)
 {
 	fprintf(stderr, "usage: %s <disk image file>\n", prog);
 	exit(1);
@@ -16,6 +17,8 @@ main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 	char *path = argv[1];
+
+	cout << "\"" << argv[1] << "\"";
 
 	FS_Boot(path);
 	FS_Sync();
