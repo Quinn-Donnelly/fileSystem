@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_DEPRECATE
 #include "LibDisk.h"
 #include <string.h>
 

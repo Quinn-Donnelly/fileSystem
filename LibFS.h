@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #define MAGIC_NUM 5867316714886133337543634800956689785104181853030165051155744983694258326948419527689951693354809668018723765226644518058681863553279904793961172169228409347105566847910609080860782698202271869829163013652294521320445673752068844740030658401059998249899050
 
@@ -31,8 +31,8 @@ typedef enum {
 } FS_Error_t;
 
 // File system generic call
-int FS_Boot(char *path){return 0;};
-int FS_Sync(){return 0;};
+int FS_Boot(char *path);
+int FS_Sync();
 
 // file ops
 int File_Create(char *file);

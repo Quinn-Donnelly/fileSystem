@@ -1,9 +1,16 @@
+#define _CRT_SECURE_NO_DEPRECATE
 #include <iostream>
+#include <string>
 #include "LibFS.h"
 #include "LibDisk.h"
 
 // global errno value here
 int osErrno;
+
+// Define Helper functions
+	// This will check if the given file name currently exists on disk
+bool doesExist(const std::string& fileName);
+
 
 int
 FS_Boot(char *path)
@@ -17,13 +24,23 @@ FS_Boot(char *path)
 		return -1;
 	}
 
-	// do all of the other stuff needed...
-	// Needs to load in the file system or create a new one
-	int status = Disk_Load(path);
-	// NOTE: This should create the file if one doesn't exits
-	if (status != 0)
+	if (doesExist(path))
 	{
-		std::cout << "Error: status code = " << status << "\n";
+		if (Disk_Load(path))
+		{
+			osErrno = E_CREATE;
+		}
+	}
+	else
+	{
+		FILE *fp = fopen(path, "ab+");
+
+		if (fp == NULL)
+		{
+			osErrno = E_CREATE;
+		}
+
+		fclose(fp);
 	}
 
 	return 0;
@@ -119,4 +136,12 @@ Dir_Unlink(char *path)
 {
 	printf("Dir_Unlink\n");
 	return 0;
+}
+
+
+
+// Define Helper functions
+bool doesExist(const std::string& fileName) {
+	struct stat buffer;
+	return (stat(fileName.c_str(), &buffer) == 0);
 }
