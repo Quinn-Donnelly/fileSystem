@@ -29,7 +29,7 @@ FS_Boot(char *path)
 	{
 		if (Disk_Load(path))
 		{
-			osErrno = E_CREATE;
+			osErrno = E_GENERAL;
 		}
 	}
 	else
@@ -38,7 +38,7 @@ FS_Boot(char *path)
 
 		if (fp == NULL)
 		{
-			osErrno = E_CREATE;
+			osErrno = E_GENERAL;
 		}
 
 		fclose(fp);

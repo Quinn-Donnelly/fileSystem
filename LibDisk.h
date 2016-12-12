@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 // a few disk parameters
 #define SECTOR_SIZE  512
@@ -38,6 +38,6 @@ int Disk_Load(char* file);
 int Disk_Write(int sector, char* buffer);
 int Disk_Read(int sector, char* buffer);
 
-#include "libDisk.cpp"
+//#include "libDisk.cpp"
 
 #endif // __Disk_H__
