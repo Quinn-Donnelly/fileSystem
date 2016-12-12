@@ -3,13 +3,14 @@
 #include <string>
 #include "LibFS.h"
 #include "LibDisk.h"
+#include <sys/stat.h>
 
 // global errno value here
 int osErrno;
 
 // Define Helper functions
 	// This will check if the given file name currently exists on disk
-bool doesExist(const std::string& fileName);
+bool doesExist(const char* fileName);
 
 
 int
@@ -141,7 +142,7 @@ Dir_Unlink(char *path)
 
 
 // Define Helper functions
-bool doesExist(const std::string& fileName) {
+bool doesExist(const char* fileName) {
 	struct stat buffer;
-	return (stat(fileName.c_str(), &buffer) == 0);
+	return (stat(fileName, &buffer) == 0);
 }
