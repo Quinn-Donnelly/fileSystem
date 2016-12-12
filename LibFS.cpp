@@ -1,3 +1,4 @@
+#include <iostream>
 #include "LibFS.h"
 #include "LibDisk.h"
 
@@ -17,6 +18,13 @@ FS_Boot(char *path)
 	}
 
 	// do all of the other stuff needed...
+	// Needs to load in the file system or create a new one
+	int status = Disk_Load(path);
+	// NOTE: This should create the file if one doesn't exits
+	if (status != 0)
+	{
+		std::cout << "Error: status code = " << status << "\n";
+	}
 
 	return 0;
 }
@@ -29,10 +37,15 @@ FS_Sync()
 }
 
 
-int
-File_Create(char *file)
+int File_Create(char *file)
 {
+	// Needs to check the file bitmap in the second section to see if the file exists
 	printf("FS_Create\n");
+	int status = Disk_Save(file);
+	if (status == -1)
+	{
+		std::cout << diskErrno << "\n";
+	}
 	return 0;
 }
 
