@@ -69,12 +69,16 @@ int FS::FS_Boot(char *path)
 		fclose(fp);
 	}
 
+	current_path = path;
+
 	return 0;
 }
 
 int FS::FS_Sync()
 {
+	// Saves to disk in the file that the disk was booted from 
 	printf("FS_Sync\n");
+	Disk_Save(current_path);
 	return 0;
 }
 

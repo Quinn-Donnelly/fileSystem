@@ -82,6 +82,7 @@ private:
 	// Used to track free space 0 = free 1 = in use
 	void * inodeBitmap;
 	void * dataBitmap;
+	char * current_path;
 };
 
 
