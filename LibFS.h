@@ -49,6 +49,9 @@ public:
 	int size;
 	int type;
 	dataNode * dataPtr[30];
+
+	// 0 = dir 1 = file
+	inode(int t = 0) { size = 0; type = t; }
 };
 
 class FS {

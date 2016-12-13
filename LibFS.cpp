@@ -17,7 +17,7 @@ int FS::FS_Boot(char *path)
 {
 	printf("FS_Boot %s\n", path);
 	std::cout << "Super Block Size = " << sizeof(superBlock) << "\n";
-	std::cout << "bitset Size = " << sizeof(std::bitset<1000>) << "\n";
+	std::cout << "inode Size = " << sizeof(inode) << "\n";
 	// oops, check for errors
 	if (Disk_Init() == -1) {
 		printf("Disk_Init() failed\n");
@@ -33,13 +33,18 @@ int FS::FS_Boot(char *path)
 			return -1;
 		}
 
+		// Load the file system sector located at 0th index
 		void * sector = new Sector;
 		Disk_Read(0, (char*)sector);
+
+		// Check to validate it is our file system
 		if (((superBlock*)(sector))->magic_num != MAGIC_NUM)
 		{
 			osErrno = E_GENERAL;
 			return -1;
 		}
+
+		// Copy the bitmaps for tracking the current files and directories
 		memcpy(inodeBitmap,((char*)sector + sizeof(superBlock)), sizeof(std::bitset<INODE_NUM>));
 		memcpy(dataBitmap, ((char*)sector + sizeof(superBlock) + sizeof(std::bitset<INODE_NUM>)), sizeof(std::bitset<DATA_NUM>));
 
@@ -59,10 +64,20 @@ int FS::FS_Boot(char *path)
 		void * buffer = new Sector();
 		((superBlock*)buffer)->magic_num = MAGIC_NUM;
 		
+		// Copy in the bisets to follow making sure the root directory is accounted for at inode 0
+		((std::bitset<INODE_NUM>*)inodeBitmap)->set(0);
 		memcpy(((char*)buffer + sizeof(superBlock)), inodeBitmap, sizeof(std::bitset<INODE_NUM>));
 		memcpy(((char*)buffer + sizeof(superBlock) + sizeof(std::bitset<INODE_NUM>)), dataBitmap, sizeof(std::bitset<DATA_NUM>));
 
+		// Save the file system sector
 		Disk_Write(0, (char *)buffer);
+
+		// Make the root directory
+		((inode*)buffer)->type = 0;
+
+		// Save the root directory
+		Disk_Write(1, (char *)buffer);
+
 		Disk_Save(path);
 
 		delete (Sector*)buffer;
@@ -87,11 +102,6 @@ int FS::File_Create(char *file)
 {
 	// Needs to check the file bitmap in the second section to see if the file exists
 	printf("FS_Create\n");
-	int status = Disk_Save(file);
-	if (status == -1)
-	{
-		std::cout << diskErrno << "\n";
-	}
 	return 0;
 }
 
