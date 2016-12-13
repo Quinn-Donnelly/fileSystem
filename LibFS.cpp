@@ -13,11 +13,11 @@ int osErrno;
 bool doesExist(const char* fileName);
 
 
-int
-FS_Boot(char *path)
+int FS::FS_Boot(char *path)
 {
 	printf("FS_Boot %s\n", path);
-
+	std::cout << "Super Block Size = " << sizeof(superBlock) << "\n";
+	std::cout << "bitset Size = " << sizeof(std::bitset<1000>) << "\n";
 	// oops, check for errors
 	if (Disk_Init() == -1) {
 		printf("Disk_Init() failed\n");
@@ -30,7 +30,20 @@ FS_Boot(char *path)
 		if (Disk_Load(path))
 		{
 			osErrno = E_GENERAL;
+			return -1;
 		}
+
+		void * sector = new Sector;
+		Disk_Read(0, (char*)sector);
+		if (((superBlock*)(sector))->magic_num != MAGIC_NUM)
+		{
+			osErrno = E_GENERAL;
+			return -1;
+		}
+		memcpy(inodeBitmap,((char*)sector + sizeof(superBlock)), sizeof(std::bitset<INODE_NUM>));
+		memcpy(dataBitmap, ((char*)sector + sizeof(superBlock) + sizeof(std::bitset<INODE_NUM>)), sizeof(std::bitset<DATA_NUM>));
+
+		delete (Sector*)sector;
 	}
 	else
 	{
@@ -39,23 +52,34 @@ FS_Boot(char *path)
 		if (fp == NULL)
 		{
 			osErrno = E_GENERAL;
+			return -1;
 		}
 
+		// Write the superblock into the new disk
+		void * buffer = new Sector();
+		((superBlock*)buffer)->magic_num = MAGIC_NUM;
+		
+		memcpy(((char*)buffer + sizeof(superBlock)), inodeBitmap, sizeof(std::bitset<INODE_NUM>));
+		memcpy(((char*)buffer + 4 + 1000/8), dataBitmap, sizeof(std::bitset<DATA_NUM>));
+
+		Disk_Write(0, (char *)buffer);
+		Disk_Save(path);
+
+		delete (Sector*)buffer;
 		fclose(fp);
 	}
 
 	return 0;
 }
 
-int
-FS_Sync()
+int FS::FS_Sync()
 {
 	printf("FS_Sync\n");
 	return 0;
 }
 
 
-int File_Create(char *file)
+int FS::File_Create(char *file)
 {
 	// Needs to check the file bitmap in the second section to see if the file exists
 	printf("FS_Create\n");
@@ -67,43 +91,37 @@ int File_Create(char *file)
 	return 0;
 }
 
-int
-File_Open(char *file)
+int FS::File_Open(char *file)
 {
 	printf("FS_Open\n");
 	return 0;
 }
 
-int
-File_Read(int fd, void *buffer, int size)
+int FS::File_Read(int fd, void *buffer, int size)
 {
 	printf("FS_Read\n");
 	return 0;
 }
 
-int
-File_Write(int fd, void *buffer, int size)
+int FS::File_Write(int fd, void *buffer, int size)
 {
 	printf("FS_Write\n");
 	return 0;
 }
 
-int
-File_Seek(int fd, int offset)
+int FS::File_Seek(int fd, int offset)
 {
 	printf("FS_Seek\n");
 	return 0;
 }
 
-int
-File_Close(int fd)
+int FS::File_Close(int fd)
 {
 	printf("FS_Close\n");
 	return 0;
 }
 
-int
-File_Unlink(char *file)
+int FS::File_Unlink(char *file)
 {
 	printf("FS_Unlink\n");
 	return 0;
@@ -111,29 +129,25 @@ File_Unlink(char *file)
 
 
 // directory ops
-int
-Dir_Create(char *path)
+int FS::Dir_Create(char *path)
 {
 	printf("Dir_Create %s\n", path);
 	return 0;
 }
 
-int
-Dir_Size(char *path)
+int FS::Dir_Size(char *path)
 {
 	printf("Dir_Size\n");
 	return 0;
 }
 
-int
-Dir_Read(char *path, void *buffer, int size)
+int FS::Dir_Read(char *path, void *buffer, int size)
 {
 	printf("Dir_Read\n");
 	return 0;
 }
 
-int
-Dir_Unlink(char *path)
+int FS::Dir_Unlink(char *path)
 {
 	printf("Dir_Unlink\n");
 	return 0;

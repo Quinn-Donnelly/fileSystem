@@ -46,7 +46,9 @@ main(int argc, char *argv[])
 	char *path = argv[1];
 	checkPath(path);
 
-	FS_Boot(path);
-	FS_Sync();
+	FS fileSystem;
+
+	fileSystem.FS_Boot(path);
+	fileSystem.FS_Sync();
 	return 0;
 }
