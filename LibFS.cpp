@@ -60,7 +60,7 @@ int FS::FS_Boot(char *path)
 		((superBlock*)buffer)->magic_num = MAGIC_NUM;
 		
 		memcpy(((char*)buffer + sizeof(superBlock)), inodeBitmap, sizeof(std::bitset<INODE_NUM>));
-		memcpy(((char*)buffer + 4 + 1000/8), dataBitmap, sizeof(std::bitset<DATA_NUM>));
+		memcpy(((char*)buffer + sizeof(superBlock) + sizeof(std::bitset<INODE_NUM>)), dataBitmap, sizeof(std::bitset<DATA_NUM>));
 
 		Disk_Write(0, (char *)buffer);
 		Disk_Save(path);
