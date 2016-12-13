@@ -32,7 +32,7 @@ typedef struct sector {
 
 extern Disk_Error_t diskErrno; // used to see what happened w/ disk ops
 
-int Disk_Init();
+Sector * Disk_Init();
 int Disk_Save(char* file);
 int Disk_Load(char* file);
 int Disk_Write(int sector, char* buffer);

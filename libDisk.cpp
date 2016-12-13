@@ -20,15 +20,15 @@ Disk_Error_t diskErrno;
 * THIS FUNCTION MUST BE CALLED BEFORE ANY OTHER FUNCTION IN HERE CAN BE USED!
 *
 */
-int Disk_Init()
+Sector* Disk_Init()
 {
 	// create the disk image and fill every sector with zeroes
 	disk = (Sector *)calloc(NUM_SECTORS, sizeof(Sector));
 	if (disk == NULL) {
 		diskErrno = E_MEM_OP;
-		return -1;
+		return NULL;
 	}
-	return 0;
+	return disk;
 }
 
 /*

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 //#include <unistd.h>
 #include <bitset>
+#include <map>
 #include "LibDisk.h"
 
 #define MAGIC_NUM 420
@@ -51,7 +52,13 @@ public:
 	dataNode * dataPtr[30];
 
 	// 0 = dir 1 = file
-	inode(int t = 0) { size = 0; type = t; }
+	inode(int t = 0) { size = 0; type = t; for (int i = 0; i < 30; ++i) { dataPtr[i] = NULL; } }
+};
+
+class dirData {
+public:
+	char path_name[16];
+	int inode_num;
 };
 
 class FS {
@@ -61,8 +68,8 @@ public:
 	int FS_Sync();
 
 	// file ops
-	int File_Create(char *file);
-	int File_Open(char *file);
+	int File_Create(std::string file);
+	int File_Open(std::string file);
 	int File_Read(int fd, void *buffer, int size);
 	int File_Write(int fd, void *buffer, int size);
 	int File_Seek(int fd, int offset);
@@ -72,7 +79,7 @@ public:
 	// directory ops
 	int Dir_Create(char *path);
 	int Dir_Size(char *path);
-	int Dir_Read(char *path, void *buffer, int size);
+	int Dir_Read(std::string path, void *buffer, int size);
 	int Dir_Unlink(char *path);
 
 	// Constructor
@@ -85,7 +92,9 @@ private:
 	// Used to track free space 0 = free 1 = in use
 	void * inodeBitmap;
 	void * dataBitmap;
+	Sector * diskAdr;
 	char * current_path;
+	std::map<std::string, int> openFiles;
 };
 
 

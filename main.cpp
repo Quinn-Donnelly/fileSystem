@@ -49,6 +49,7 @@ main(int argc, char *argv[])
 	FS fileSystem;
 
 	fileSystem.FS_Boot(path);
+	fileSystem.File_Create("quinn");
 	fileSystem.FS_Sync();
 	return 0;
 }
