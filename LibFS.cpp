@@ -51,6 +51,8 @@ int FS::FS_Boot(char *path)
 		memcpy(inodeBitmap,((char*)sector + sizeof(superBlock)), sizeof(std::bitset<INODE_NUM>));
 		memcpy(dataBitmap, ((char*)sector + sizeof(superBlock) + sizeof(std::bitset<INODE_NUM>)), sizeof(std::bitset<DATA_NUM>));
 
+		std::cout << ((std::bitset<INODE_NUM>*)inodeBitmap)->count() << std::endl;
+
 		delete (Sector*)sector;
 	}
 	else
@@ -97,7 +99,21 @@ int FS::FS_Sync()
 {
 	// Saves to disk in the file that the disk was booted from 
 	printf("FS_Sync\n");
+
+	// Write the superblock into the new disk
+	void * buffer = new Sector();
+	Disk_Read(0, (char *)buffer);
+
+	// Copy in the bisets to follow making sure the root directory is accounted for at inode 0
+	memcpy(((char*)buffer + sizeof(superBlock)), inodeBitmap, sizeof(std::bitset<INODE_NUM>));
+	memcpy(((char*)buffer + sizeof(superBlock) + sizeof(std::bitset<INODE_NUM>)), dataBitmap, sizeof(std::bitset<DATA_NUM>));
+
+	// Save the file system sector
+	Disk_Write(0, (char *)buffer);
+
 	Disk_Save(current_path);
+
+	delete (Sector*)buffer;
 	return 0;
 }
 
@@ -133,7 +149,7 @@ int FS::File_Create(std::string file)
 			{
 				break;
 			}
-			dataSector = ((dirData*)dataSector) + sizeof(dirData);
+			dataSector = ((dirData*)dataSector) + 1;
 		}
 		++currentPointer;
 	}
@@ -171,6 +187,7 @@ int FS::File_Create(std::string file)
 			if (((std::bitset<DATA_NUM>*)dataBitmap)->test(s) == 0)
 			{
 				newDirData = diskAdr + (251 + s);
+				((inode*)dirInode)->dataPtr[numEntries / 4] = (dataNode *)newDirData;
 
 				((std::bitset<DATA_NUM>*)dataBitmap)->set(s);
 				allocated = true;
@@ -192,10 +209,16 @@ int FS::File_Create(std::string file)
 		osErrno = E_CREATE;
 		return -1;
 	}
-	for (int s = 0; s < file.size(); ++s)
+
+	dirData * writer = (dirData*)newDirData;
+	for (int i = 0; i < file.size(); ++i)
 	{
-		((dirData*)newDirData)->path_name[s] = file[s];
+		writer->path_name[i] = file[i];
 	}
+
+	// Update the metadata for the parent
+	((inode*)dirInode)->size += sizeof(dirData);
+	Disk_Write(1, (char*)dirInode);
 
 	int sectorNum = inodeNum / 4 + 1;
 	// Get the sector with the new inode that has been allocated
@@ -249,7 +272,7 @@ int FS::File_Open(std::string file)
 				return -1;
 			}
 
-			dataSector = ((dirData*)dataSector) + sizeof(dirData);
+			dataSector = ((dirData*)dataSector) + 1;
 		}
 		++currentPointer;
 	}

@@ -50,6 +50,11 @@ main(int argc, char *argv[])
 
 	fileSystem.FS_Boot(path);
 	fileSystem.File_Create("quinn");
+	fileSystem.File_Create("Joe");
+	fileSystem.File_Create("Nick");
+	fileSystem.File_Create("Justin");
+	fileSystem.File_Open("quinn");
+	fileSystem.File_Open("Nick");
 	fileSystem.FS_Sync();
 	return 0;
 }
